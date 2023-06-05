@@ -13,5 +13,8 @@ inThisBuild(
 
 lazy val root = (project in file("."))
   .settings(
-    name := "parsley-debug-examples"
+    name                := "parsley-debug-examples",
+    libraryDependencies += "com.github.j-mie6" %% "parsley"       % "4.2-324a29e-SNAPSHOT",
+    libraryDependencies += "com.github.j-mie6" %% "parsley-debug" % "4.2-324a29e-SNAPSHOT",
+    libraryDependencies += "com.github.0xfc963f18dc21" %% "parsley-debug-jvmui" % "0.1.0-SNAPSHOT"
   )
