@@ -1,6 +1,7 @@
 package examples
 
 import parsley.Parsley
+import parsley.Parsley._
 import parsley.character._
 import parsley.expr.chain
 
@@ -8,13 +9,21 @@ object Numbers extends Runnable {
   // A subtle issue with this parser is how some numbers just do not parse as they should.
   // It may take you either a few seconds or a few minutes to figure it out by looking at it,
   // especially if this is used in a much larger parser.
-  // So, what is the problem with this parser?
+  // So, what is the problem with this parser? Try using the debugger!
   // Note that in your fix, the parser doesn't have to have the same types, per-se.
   // We just want a working (mathematical) integer parser.
+  val digit: Parsley[Int] = satisfy(_.isDigit).map(_.asDigit)
+
+  def digits(): Parsley[Int] = {
+    var acc = 0
+    lazy val ds: Parsley[Int] = digit.flatMap(d => { acc = acc * 10 + d; ds }) <|> fresh(acc)
+    fresh { acc = 0 } *> ds
+  }
+
   val brokenIntegerParser: Parsley[Int] =
     chain.prefix(
       char('-') #> ((_: Int) * -1),
-      satisfy(_.isDigit).foldLeft1(0)((t, c) => c.asDigit + (t * 10))
+      digits()
     )
 
   // Implement your fixed parser here. Feel free to change the type.
