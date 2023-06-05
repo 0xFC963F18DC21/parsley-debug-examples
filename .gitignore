@@ -1,0 +1,12 @@
+# Build files.
+.bsp
+.metals
+.bloop
+target
+
+# Scratches and miscellaneous.
+**/playground
+
+# Other extras.
+*.jar
+*.class
