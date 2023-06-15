@@ -2,9 +2,6 @@ package examples
 
 import parsley.Parsley
 import parsley.Parsley._
-import parsley.character._
-import parsley.combinator.many
-import parsley.expr.chain
 import parsley.token.Lexer
 import parsley.token.descriptions.{LexicalDesc, NameDesc, SpaceDesc}
 import parsley.token.predicate.Basic
@@ -50,11 +47,16 @@ object Concatenative extends Runnable {
         commentEnd = ")",
         space = Basic(_.isWhitespace)
       ),
-      nameDesc = NameDesc.plain.copy(
-        identifierLetter = Basic { c =>
-          !":;()".contains(c) && (c.toInt < 127) && !c.isWhitespace
+      nameDesc = {
+        val idP = Basic { c =>
+          (!":;()".contains(c)) && (c.toInt < 127) && !c.isWhitespace
         }
-      )
+
+        NameDesc.plain.copy(
+          identifierStart = idP,
+          identifierLetter = idP
+        )
+      }
     )
 
     new Lexer(language)
@@ -74,18 +76,19 @@ object Concatenative extends Runnable {
 
   case class Prog(prog: List[Tokens])
 
-  // Here is the broken parser.
+  // Here is the broken parser. Things seem to be a bit reversed...
   val wordB: Parsley[Word] = lexer.lexeme.names.identifier.map(Word)
 
-  def wordsB(acc: List[Word] = Nil): Parsley[List[Word]] =
-    wordB.flatMap(w => wordsB(w :: acc)) <|> pure(acc)
+  val wordsB: Parsley[List[Word]] =
+    wordB.foldLeft[List[Word]](Nil)((l, w) => w :: l)
 
-  val defnB: Parsley[Def] = ':' *> (wordB <~> wordsB()).map(Def.tupled) <* ';'
+  val defnB: Parsley[Def] = ':' *> (wordB <~> wordsB).map(Def.tupled) <* ';'
 
-  val tokB: Parsley[Tokens] = attempt(wordB) <|> attempt(defnB)
+  val tokB: Parsley[Tokens] = attempt(wordB) <|> defnB
 
-  def progB(acc: List[Tokens] = Nil): Parsley[Prog] =
-    tokB.flatMap(t => progB(t :: acc)) <|> pure(acc).map(Prog)
+  val progB: Parsley[Prog] = lexer.space.whiteSpace ~> lexer.lexeme(
+    tokB.foldLeft[List[Tokens]](Nil)((l, t) => t :: l).map(Prog)
+  )
 
   // ***** Make your fixed parser below this comment after debugging! *****
   val fixed: Parsley[Prog] = Parsley.empty
@@ -104,7 +107,7 @@ object Concatenative extends Runnable {
 
     // Running the parser itself.
     for (inp <- cases) {
-      println(s"BROKEN: $inp -> ${progB().parse(inp)}")
+      println(s"BROKEN: $inp -> ${progB.parse(inp)}")
       println(s" FIXED: $inp -> ${fixed.parse(inp)}")
     }
   }
