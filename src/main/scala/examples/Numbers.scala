@@ -30,7 +30,7 @@ object Numbers extends Runnable {
   val fixedIntegerParser: Parsley[Any] = Parsley.empty
 
   override def run(): Unit = {
-    // Input cases.
+    // Input cases, these are expected to return the exact value of the shown number.
     val cases: List[String] = List(
       "123",
       "-123",

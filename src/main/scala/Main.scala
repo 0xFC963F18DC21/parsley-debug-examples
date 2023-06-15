@@ -5,7 +5,8 @@ object Main {
     // Run all examples.
     // Feel free to comment examples out to only run a select few.
     val examples: List[Runnable] = List(
-      Numbers
+      Numbers,
+      Concatenative
     )
 
     for (example <- examples) {
