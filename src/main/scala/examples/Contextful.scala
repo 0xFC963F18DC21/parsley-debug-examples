@@ -51,11 +51,11 @@ object Contextful extends Runnable {
       many(
         choice(
           char('(') *> reg.modify('(' :: _),
-          char('[') *> reg.modify('[' :: _),
-          char('{') *> reg.modify('{' :: _),
+          char('[') *> reg.modify('{' :: _),
+          char('{') *> reg.modify('[' :: _),
           char('<') *> reg.modify('<' :: _),
           char(')') *> reg.get.flatMap(l =>
-            removeFirst(l, (d: Char) => d == '(') match {
+            removeFirst(l, (d: Char) => d == '{') match {
               case Some(xs) => reg.put(xs)
               case None     => fail("No more opening parentheses.")
             }
@@ -67,7 +67,7 @@ object Contextful extends Runnable {
             }
           ),
           char('}') *> reg.get.flatMap(l =>
-            removeFirst(l, (d: Char) => d == '{') match {
+            removeFirst(l, (d: Char) => d == '(') match {
               case Some(xs) => reg.put(xs)
               case None     => fail("No more opening braces.")
             }
@@ -80,7 +80,7 @@ object Contextful extends Runnable {
           ),
           char('|') *> reg.get.flatMap {
             case Nil     => fail("This super-bracket closes nothing at all.")
-            case x :: xs => reg.put(xs.filter(_ != x))
+            case x :: xs => reg.put(xs.filter(_ == x))
           }
         )
       ) *> ifP(reg.get.map(_.isEmpty), pure(()), fail("Unmatched delimiters in input."))
