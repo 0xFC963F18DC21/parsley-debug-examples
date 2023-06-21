@@ -1,6 +1,6 @@
 package examples
 
-import parsley.{Failure, Parsley, Success}
+import parsley.Parsley
 import parsley.Parsley._
 import parsley.character.char
 import parsley.combinator.{choice, ifP, many}
@@ -79,11 +79,11 @@ object Contextful extends Runnable {
             }
           ),
           char('|') *> reg.get.flatMap {
-            case Nil     => fail("This super-bracket closes nothing at all.")
-            case x :: xs => reg.put(xs.filter(_ == x))
+            case Nil    => fail("This super-bracket closes nothing at all.")
+            case x :: _ => reg.modify(_.filter(_ == x))
           }
         )
-      ) *> ifP(reg.get.map(_.isEmpty), pure(()), fail("Unmatched delimiters in input."))
+      ) *> ifP(reg.get.map(_.isEmpty), unit, fail("Unmatched delimiters in input."))
     }
   }
 

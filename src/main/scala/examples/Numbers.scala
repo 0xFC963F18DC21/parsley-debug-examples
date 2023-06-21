@@ -1,7 +1,6 @@
 package examples
 
 import parsley.Parsley
-import parsley.Parsley._
 import parsley.character._
 import parsley.expr.chain
 
@@ -12,13 +11,8 @@ object Numbers extends Runnable {
   // So, what is the problem with this parser? Try using the debugger!
   // Note that in your fix, the parser doesn't have to have the same types, per-se.
   // We just want a working (mathematical) integer parser.
-  val digit: Parsley[Int] = satisfy(_.isDigit).map(_.asDigit)
-
-  def digits(): Parsley[Int] = {
-    var acc = 0
-    lazy val ds: Parsley[Int] = digit.flatMap(d => { acc = acc * 10 + d; ds }) <|> fresh(acc)
-    fresh { acc = 0 } *> ds
-  }
+  def digits(): Parsley[Int] =
+    digit.foldLeft1(0)((acc, d) => 10 * acc + d.asDigit)
 
   val brokenIntegerParser: Parsley[Int] =
     chain.prefix(

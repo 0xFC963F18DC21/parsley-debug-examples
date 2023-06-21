@@ -2,6 +2,7 @@ package examples
 
 import parsley.Parsley
 import parsley.Parsley._
+import parsley.genericbridges.{ParserBridge1, ParserBridge2}
 import parsley.token.Lexer
 import parsley.token.descriptions.{LexicalDesc, NameDesc, SpaceDesc}
 import parsley.token.predicate.Basic
@@ -71,23 +72,30 @@ object Concatenative extends Runnable {
 
   // The program tokens.
   sealed trait Tokens
+
   case class Word(word: String) extends Tokens
+  object Word extends ParserBridge1[String, Word]
+
   case class Def(name: Word, words: List[Word]) extends Tokens
+  object Def extends ParserBridge2[Word, List[Word], Def]
 
   case class Prog(prog: List[Tokens])
+  object Prog extends ParserBridge1[List[Tokens], Prog]
 
   // Here is the broken parser. Things seem to be a bit reversed...
-  val wordB: Parsley[Word] = lexer.lexeme.names.identifier.map(Word)
+  val wordB: Parsley[Word] = Word(lexer.lexeme.names.identifier)
 
   val wordsB: Parsley[List[Word]] =
     wordB.foldLeft[List[Word]](Nil)((l, w) => w :: l)
 
-  val defnB: Parsley[Def] = ':' *> (wordB <~> wordsB).map(Def.tupled) <* ';'
+  val defnB: Parsley[Def] = ':' *> Def(wordB, wordsB) <* ';'
 
   val tokB: Parsley[Tokens] = attempt(wordB) <|> defnB
 
-  val progB: Parsley[Prog] = lexer.space.whiteSpace ~> lexer.lexeme(
-    tokB.foldLeft[List[Tokens]](Nil)((l, t) => t :: l).map(Prog)
+  val progB: Parsley[Prog] = Prog(
+    lexer.space.whiteSpace ~> lexer.lexeme(
+      tokB.foldLeft[List[Tokens]](Nil)((l, t) => t :: l)
+    )
   )
 
   // ***** Make your fixed parser below this comment after debugging! *****

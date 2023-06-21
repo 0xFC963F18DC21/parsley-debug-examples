@@ -3,6 +3,7 @@
 .metals
 .bloop
 target
+**/target
 
 # Scratches and miscellaneous.
 **/playground
@@ -10,3 +11,4 @@ target
 # Other extras.
 *.jar
 *.class
+**/ReportExamples.scala
