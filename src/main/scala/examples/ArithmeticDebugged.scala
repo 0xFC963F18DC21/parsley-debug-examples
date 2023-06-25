@@ -53,7 +53,6 @@ object ArithmeticDebugged extends Runnable {
     many(many(satisfy("\r\n".contains(_))) ~> expr).debug("prog")
 
   override def run(): Unit = {
-    Collectors.names(this)
     println(
       prog.parse(
         "1+2*3-4/2"
