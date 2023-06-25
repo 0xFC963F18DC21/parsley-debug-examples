@@ -1,9 +1,10 @@
 package examples
 
 import parsley.Parsley
-import parsley.Parsley._
 import parsley.character.char
-import parsley.combinator.{choice, ifP, many}
+import parsley.combinator.{choice, many, when}
+import parsley.debugger.combinators.attachDebuggerGUI
+import parsley.debugger.frontend.{ConsoleGUI, FxGUI}
 import parsley.errors.combinator.fail
 import parsley.registers._
 
@@ -83,14 +84,18 @@ object Contextful extends Runnable {
             case x :: _ => reg.modify(_.filter(_ == x))
           }
         )
-      ) *> ifP(reg.get.map(_.isEmpty), unit, fail("Unmatched delimiters in input."))
+      ) *> when(reg.gets(_.nonEmpty), fail("Unmatched delimiters in input."))
     }
+
+    // Debugged
+//    val debugged: Parsley[Unit] = attachDebuggerGUI(Broken.parMatcher, ConsoleGUI)
+    val debugged: Parsley[Unit] = attachDebuggerGUI(Broken.parMatcher, FxGUI)
   }
 
   // ***** Make your fixed parser below this comment after debugging! *****
-  object Fixed {
-    val parMatcher: Parsley[Unit] = Parsley.empty
-  }
+//  object Fixed {
+//    val parMatcher: Parsley[Unit] = Parsley.empty
+//  }
 
   override def run(): Unit = {
     // As this is harder, we will have tests to pass and tests to fail:
@@ -119,12 +124,14 @@ object Contextful extends Runnable {
 
     for (inp <- passingCases) {
       println(s"BROKEN (should pass): $inp -> ${Broken.parMatcher.parse(inp)}")
-      println(s" FIXED (should pass): $inp -> ${Fixed.parMatcher.parse(inp)}")
+//      println(s"BROKEN (should pass): $inp -> ${Broken.debugged.parse(inp)}")
+//      println(s" FIXED (should pass): $inp -> ${Fixed.parMatcher.parse(inp)}")
     }
 
     for (inp <- failingCases) {
       println(s"BROKEN (should fail): $inp -> ${Broken.parMatcher.parse(inp)}")
-      println(s" FIXED (should fail): $inp -> ${Fixed.parMatcher.parse(inp)}")
+//      println(s"BROKEN (should fail): $inp -> ${Broken.debugged.parse(inp)}")
+//      println(s" FIXED (should fail): $inp -> ${Fixed.parMatcher.parse(inp)}")
     }
   }
 }

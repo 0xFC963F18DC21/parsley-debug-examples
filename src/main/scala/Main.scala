@@ -5,8 +5,10 @@ object Main {
     // Run all examples.
     // Feel free to comment examples out to only run a select few.
     val examples: List[Runnable] = List(
-      Numbers,
-      Concatenative,
+      Arithmetic,
+      ArithmeticDebugged,
+//      Numbers,
+//      Concatenative,
       Contextful
     )
 
