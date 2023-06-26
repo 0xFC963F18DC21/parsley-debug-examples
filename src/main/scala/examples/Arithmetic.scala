@@ -6,7 +6,6 @@ import parsley.combinator.many
 import parsley.debugger.combinators.attachDebuggerGUI
 import parsley.debugger.frontend.FxGUI
 import parsley.debugger.util.Collectors
-import parsley.debugger.util.Collectors.names
 import parsley.expr.{precedence, InfixL, Ops}
 import parsley.genericbridges.{ParserBridge1, ParserBridge2}
 
@@ -52,12 +51,9 @@ object Arithmetic extends Runnable {
   lazy val prog: Parsley[List[Arith]] =
     many(many(satisfy("\r\n".contains(_))) ~> expr)
 
-  lazy val debugged = attachDebuggerGUI(prog, FxGUI(2.0))
-
   override def run(): Unit = {
-    Collectors.names(this)
     println(
-      debugged.parse(
+      prog.parse(
         "1+2*3-4/2"
       )
     )
