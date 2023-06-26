@@ -89,7 +89,7 @@ object Contextful extends Runnable {
 
     // Debugged
 //    val debugged: Parsley[Unit] = attachDebuggerGUI(Broken.parMatcher, ConsoleGUI)
-    val debugged: Parsley[Unit] = attachDebuggerGUI(Broken.parMatcher, FxGUI)
+    val debugged: Parsley[Unit] = attachDebuggerGUI(Broken.parMatcher, FxGUI(2.0))
   }
 
   // ***** Make your fixed parser below this comment after debugging! *****
